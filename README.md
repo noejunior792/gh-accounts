@@ -331,7 +331,7 @@ Loading multiple SSH keys into `ssh-agent` globally causes **agent pollution** �
 ## Compatibility
 
 | Requirement | Supported |
-|---|---|---|
+|---|---|
 | Linux (any distro) | ✅ |
 | macOS | ✅ |
 | Windows 10 1809+ | ✅ (native, via PowerShell + OpenSSH Client) |
