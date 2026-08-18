@@ -288,10 +288,12 @@ Loading multiple SSH keys into `ssh-agent` globally causes **agent pollution** �
 |---|---|
 | Linux (any distro) | ✅ |
 | macOS | ✅ |
+| Windows 10 1809+ | ✅ (native, via PowerShell + OpenSSH Client) |
 | Bash 4.3+ / 5.x | ✅ |
 | Fish shell | ✅ (CLI is bash, works from any shell) |
+| PowerShell 5.1+ | ✅ |
 | OpenSSH | ✅ (ssh, ssh-keygen, ssh-agent, ssh-add) |
-| External deps | None — only coreutils, grep, sed, awk |
+| External deps | None — only OS-native tools (Linux: coreutils, grep, sed, awk / Windows: PowerShell + OpenSSH) |
 
 ---
 
