@@ -49,6 +49,8 @@ source "${LIB_DIR}/backup.sh"
 source "${LIB_DIR}/account.sh"
 # shellcheck source=../lib/agent.sh
 source "${LIB_DIR}/agent.sh"
+# shellcheck source=../lib/agent-worktree.sh
+source "${LIB_DIR}/agent-worktree.sh"
 # shellcheck source=../lib/doctor.sh
 source "${LIB_DIR}/doctor.sh"
 
@@ -74,6 +76,10 @@ print_help() {
     agent-clean                  Remove GitHub keys from ssh-agent
     agent-reset                  Clean agent + reconfigure
     harden                       Add IdentitiesOnly yes to SSH config
+    agent create <name> [repo] [--account <acct>]   Isolated worktree per AI agent
+    agent list [repo]            List agent worktrees and their identity
+    agent run <name> -- <cmd>    Run a command inside an agent worktree (--rm to clean up)
+    agent destroy <name>         Remove an agent worktree
     backup                       Create a manual backup
     restore                      Restore from a backup
     doctor                       Run diagnostic checks
@@ -100,6 +106,10 @@ print_help() {
     gh-accounts harden
     gh-accounts split-mode enable
     gh-accounts export --json
+    gh-accounts agent create work . --account work
+    gh-accounts agent list
+    gh-accounts agent run work -- bash -c 'git status && git log -1'
+    gh-accounts agent destroy work
 
   DOCUMENTATION
     https://github.com/noejunior299/gh-accounts
@@ -226,6 +236,32 @@ main() {
         harden)
             print_banner
             agent_harden
+            ;;
+
+        agent)
+            print_banner
+            local action="${1:-}"
+            case "${action}" in
+                create)
+                    shift
+                    agent_worktree_create "$@"
+                    ;;
+                list)
+                    shift
+                    agent_worktree_list "${1:-}"
+                    ;;
+                run)
+                    shift
+                    agent_worktree_run "$@"
+                    ;;
+                destroy)
+                    shift
+                    agent_worktree_destroy "$@"
+                    ;;
+                *)
+                    die "Usage: gh-accounts agent <create|list|run|destroy> ..."
+                    ;;
+            esac
             ;;
 
         backup)

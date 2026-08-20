@@ -13,6 +13,7 @@ gh-accounts/
 │   ├── config.sh                  # SSH config read/write operations
 │   ├── account.sh                 # Account CRUD operations
 │   ├── agent.sh                   # SSH agent management
+│   ├── agent-worktree.sh          # Per-agent Git worktree isolation
 │   ├── backup.sh                  # Backup and restore functionality
 │   └── doctor.sh                  # Diagnostic checks
 ├── tests/
@@ -20,6 +21,7 @@ gh-accounts/
 │   ├── config.bats                # Tests for config.sh
 │   ├── account.bats               # Tests for account.sh
 │   ├── agent.bats                 # Tests for agent.sh
+│   ├── agent-worktree.bats        # Tests for agent-worktree.sh
 │   ├── backup.bats                # Tests for backup.sh
 │   └── doctor.bats                # Tests for doctor.sh
 ├── completions/
@@ -27,9 +29,6 @@ gh-accounts/
 │   └── gh-accounts.fish           # Fish shell completion script
 ├── man/
 │   └── gh-accounts.1              # Man page (troff format)
-├── .github/
-│   └── workflows/
-│       └── ci.yml                 # GitHub Actions CI/CD pipeline
 ├── install.sh                     # System-wide installer
 ├── uninstall.sh                   # System-wide uninstaller
 ├── VERSION                        # Semantic version (e.g., 1.0.0)
@@ -102,7 +101,7 @@ shellcheck lib/account.sh
 
 ```bash
 # Test that all modules can be sourced without errors
-bash -c 'source lib/utils.sh && source lib/config.sh && source lib/account.sh && source lib/agent.sh && source lib/backup.sh && source lib/doctor.sh && echo "✅ All libraries loaded successfully"'
+bash -c 'source lib/utils.sh && source lib/config.sh && source lib/account.sh && source lib/agent.sh && source lib/agent-worktree.sh && source lib/backup.sh && source lib/doctor.sh && echo "✅ All libraries loaded successfully"'
 ```
 
 ### Test installation script
@@ -122,10 +121,7 @@ docker run -it ubuntu:latest bash -c "
 
 ## Continuous Integration
 
-The `.github/workflows/ci.yml` file defines automated tests that run on:
-
-- **Push** to `main` or `dev` branches
-- **Pull requests** against `main` or `dev` branches
+The GitHub Actions pipeline (`.github/workflows/ci.yml`) has been removed. Linting and tests are run locally during development:
 
 ### Jobs
 
@@ -134,6 +130,13 @@ The `.github/workflows/ci.yml` file defines automated tests that run on:
 3. **Install** — Verify installation script syntax and library loading
 4. **Security** — Check for hardcoded secrets
 5. **Coverage** — Code metrics and file listing
+
+Run these locally with:
+
+```bash
+shellcheck -x bin/* lib/*.sh install.sh uninstall.sh
+bats tests/*.bats
+```
 
 ## Code Style Guidelines
 
@@ -301,7 +304,7 @@ If ShellCheck reports issues:
 
 ### CI failures
 
-Check the GitHub Actions workflow output at: https://github.com/noejunior299/gh-accounts/actions
+CI is currently disabled (workflow removed). If re-added, check the GitHub Actions output at: https://github.com/noejunior299/gh-accounts/actions
 
 Common issues:
 
