@@ -22,6 +22,7 @@ When you work with multiple GitHub accounts (personal, work, freelance, open-sou
 - **Backup** and **restore** your entire SSH configuration
 - **Doctor** — diagnostics for permissions, agent, duplicates, integrity
 - **Agent management** — clean, reset, load, and inspect SSH agent keys
+- **Per-agent worktree isolation** — dedicated Git worktrees for AI coding agents
 - **Harden** — prevent agent pollution with `IdentitiesOnly yes`
 - **Split mode** — optional per-account config files for team/org setups
 - **Merge / split** configs between unified and split modes
@@ -174,6 +175,19 @@ gh-accounts harden                 # Add 'IdentitiesOnly yes' to SSH config (per
 
 `harden` writes a global `Host *` block with `IdentitiesOnly yes` so SSH only uses the key specified in each Host block — even if the agent has many keys loaded. This is the permanent fix for agent pollution.
 
+### Per-agent worktree isolation
+
+Each AI coding agent (Claude Code, Codex, Cursor, etc.) gets its own isolated Git worktree, tied to a `gh-accounts` identity. This lets parallel agents work on the same repo without colliding on branches or committing under the wrong identity.
+
+```bash
+gh-accounts agent create work . --account work   # worktree + per-worktree identity
+gh-accounts agent list                            # list agent worktrees and identities
+gh-accounts agent run work -- <command>           # run inside the worktree (--rm to clean up)
+gh-accounts agent destroy work                    # remove the worktree
+```
+
+Worktrees live in a sibling directory (`../<repo>--<agent>`) using native `git worktree`, and identity is isolated per worktree via `git config --worktree` — the main repo and its identity stay untouched. `agent run --rm` removes the worktree automatically when the command finishes.
+
 ### Split mode
 
 ```bash
@@ -233,6 +247,7 @@ gh-accounts/
 │   ├── config.sh            # SSH config read/write (Bash)
 │   ├── account.sh           # Account CRUD, test, export (Bash)
 │   ├── agent.sh             # SSH agent management (Bash)
+│   ├── agent-worktree.sh    # Per-agent Git worktree isolation (Bash)
 │   ├── backup.sh            # Backup and restore (Bash)
 │   ├── doctor.sh            # Diagnostic checks (Bash)
 │   ├── GhAccounts.psm1      # PowerShell module (all functions)
@@ -366,6 +381,8 @@ Loading multiple SSH keys into `ssh-agent` globally causes **agent pollution** �
 - [x] `gh-accounts switch <name> [--global]` — set `user.name` and `user.email` for the current repo (default) or globally, so commits are attributed to the correct identity
 - [x] `gh-accounts set-default <name>` — set an account as the default for `github.com` (no prefix needed for clones)
 - [x] `gh-accounts agent-*` / `harden` — SSH agent management and pollution prevention
+- [x] `gh-accounts agent create|list|run|destroy` — per-agent Git worktree isolation
+- [ ] `gh-accounts agent run` auto-detection via env vars (future sugar)
 - [ ] `gh-accounts import` — import existing SSH keys into management
 - [ ] `gh-accounts config` — interactive setup wizard
 - [ ] Shell completions for bash and fish
